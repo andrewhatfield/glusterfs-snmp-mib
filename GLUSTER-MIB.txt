@@ -71,7 +71,7 @@ NodeIndex ::= TEXTUAL-CONVENTION
     SYNTAX       Integer32 (1..64)
 
 -- I think I want to remove this block --
--- Quite likely!
+-- Quite likely! another
 -- START --
 InterfaceIndexOrZero ::= TEXTUAL-CONVENTION
     DISPLAY-HINT "d"
