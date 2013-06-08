@@ -14,9 +14,11 @@
  * to these variables automatically, changing the values as needed.
  */
 
-long            nodeNumber = 0; /* XXX: set default value */
-long            volumeNumber = 0;       /* XXX: set default value */
+//long            nodeNumber = 0; /* XXX: set default value */
+//long            volumeNumber = 0;       /* XXX: set default value */
 
+long            nodeNumber = 10; /* XXX: set default value */
+long            volumeNumber = 10;       /* XXX: set default value */
 /*
  * Our initialization routine, called automatically by the agent 
  * (Note that the function name must match init_FILENAME()) 
