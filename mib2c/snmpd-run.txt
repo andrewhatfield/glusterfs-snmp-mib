@@ -1,0 +1,4 @@
+% snmpd -f -L -DnstAgentPluginObject,dlmod
+
+snmpd.conf
+dlmod nstAgentPluginObject /path/to/nstAgentPluginObject.so

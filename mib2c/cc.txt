@@ -1,0 +1,2 @@
+$ cc `net-snmp-config --cflags` -fPIC -shared -g -O0 -o nstAgentPluginObject.so nstAgentPluginObject.c `net-snmp-config --libs`
+
