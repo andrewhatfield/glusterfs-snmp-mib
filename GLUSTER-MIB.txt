@@ -32,10 +32,9 @@ glusterMIB MODULE-IDENTITY
             "Initial revision"
     ::= { mib-2 31 }
 
-glusterMIBObjects OBJECT IDENTIFIER ::= { glusterMIB 1 }
+-- glusterMIBObjects OBJECT IDENTIFIER ::= { glusterMIB 1 }
 
--- REMOVE nodes OBJECT IDENTIFIER ::= { mib-2 2 }
-nodes OBJECT IDENTIFIER ::= { enterprises 2312 11 }
+glusterFS OBJECT IDENTIFIER ::= { enterprises 2312 11 }
 
 --
 -- Textual Conventions
@@ -67,8 +66,7 @@ NodeIndex ::= TEXTUAL-CONVENTION
     STATUS       current
     DESCRIPTION
             "A unique value, greater than zero, for each Node or
-            in the Trusted Storage Pool.  It is recommended that
-            values are assigned contiguously starting from 1."
+            in the Trusted Storage Pool"
     SYNTAX       Integer32 (1..64)
 
 -- I think I want to remove this block --
@@ -90,12 +88,12 @@ InterfaceIndexOrZero ::= TEXTUAL-CONVENTION
 -- END --
 
 nodeNumber  OBJECT-TYPE
-    SYNTAX      Integer32
+    SYNTAX      Integer32 (1..64)
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
             "The number of Nodes in the Trusted Storage Pool"
-    ::= { nodes 1 }
+    ::= { glusterFS 1 }
 
 -- The Nodes table contains information on the entity's Nodes
 
@@ -106,7 +104,7 @@ nodeTable OBJECT-TYPE
     DESCRIPTION
             "A list of Node entries.  The number of entries is
             given by the value of nodeNumber."
-    ::= { nodes 2 }
+    ::= { glusterFS 2 }
 
 nodeEntry OBJECT-TYPE
     SYNTAX      NodeEntry
@@ -120,11 +118,14 @@ nodeEntry OBJECT-TYPE
 
 NodeEntry ::=
     SEQUENCE {
-        nodeNumber                NodeIndex,
-        nodeVersion               DisplayString
+        nodeIndex                NodeIndex,
+        nodeVersion              DisplayString,
+	brickNumber              Integer32,
+        brickEntry               BrickEntry
     }
 
 nodeIndex OBJECT-TYPE
+--    SYNTAX      Integer32
     SYNTAX      NodeIndex
     MAX-ACCESS  read-only
     STATUS      current
@@ -146,5 +147,256 @@ nodeVersion OBJECT-TYPE
             GlusterFS protocol version interface."
     ::= { nodeEntry 2 }
 
+brickNumber OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Bricks on a Node"
+    ::= { nodeEntry 3 }
+
+brickTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF BrickEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of Brick entries.  The number of entries is
+            given by the value of brickNumber."
+    ::= { nodeEntry 4 }
+
+brickEntry OBJECT-TYPE
+    SYNTAX      BrickEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry containing management information applicable to a
+            particular Brick."
+    INDEX   { brickIndex }
+    ::= { brickTable 1 }
+
+BrickEntry ::=
+    SEQUENCE {
+        brickIndex               Integer32,
+        brickPath                DisplayString,
+        brickFs                  DisplayString,
+        brickSize                Integer32,
+        brickUsed                Integer32,
+        brickFree                Integre32,
+        brickLV                  DisplayString,
+        brickVG                  DisplayString,
+        brickPV                  DisplayString,
+        brickStatus              DisplayString
+    }
+
+brickIndex OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Bricks on a Node"
+    ::= { brickEntry 1 }
+
+brickPath OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Path on the filesystem to the Brick"
+    ::= { brickEntry 2 }
+
+brickFs OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Type of filesystem of the Brick"
+    ::= { brickEntry 3 }
+
+brickSize OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Size (MB) of the Brick"
+    ::= { brickEntry 4 }
+
+brickUsed OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "MB used of the Brick"
+    ::= { brickEntry 5 }
+
+brickFree OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "MB free on the Brick"
+    ::= { brickEntry 6 }
+
+brickLV OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "LogicalVolume (LV) of the Brick"
+    ::= { brickEntry 7 }
+
+brickVG OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "VolumeGroup (VG) of the Brick"
+    ::= { brickEntry 8 }
+
+brickPV OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "PhysicalVolume (PV) of the Brick"
+    ::= { brickEntry 9 }
+
+brickStatus OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Status of the Brick - Health"
+    ::= { brickEntry 10 }
+------
+
+volumeNumber  OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Nodes in the Trusted Storage Pool"
+    ::= { glusterFS 3 }
+
+volumeTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF VolumeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of Volume entries.  The number of entries is
+            given by the value of volumeNumber."
+    ::= { glusterFS 4 }
+
+volumeEntry OBJECT-TYPE
+    SYNTAX      VolumeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry containing management information applicable to a
+            particular Volume."
+    INDEX   { volumeIndex }
+    ::= { volumeTable 1 }
+
+VolumeEntry ::=
+    SEQUENCE {
+        volumeIndex              VolumeIndex,
+        volumeName               DisplayString,
+        volumeType               DisplayString,
+        volumeStatus             DisplayString,
+        volumeBrickNumber        Integer32,
+        volumeBrickEntry         VolumeBrickEntry
+    }
+
+volumeIndex OBJECT-TYPE
+    SYNTAX      NodeIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each interface.  It
+            is recommended that values are assigned contiguously
+            starting from 1.  The value for each interface sub-layer
+            must remain constant at least from one re-initialization of
+            the entity's network management system to the next re-
+            initialization."
+    ::= { volumeEntry 1 }
+
+volumeName OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Name of the Volume"
+    ::= { volumeEntry 2 }
+
+volumeType OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Type of Volume"
+    ::= { volumeEntry 3 }
+
+volumeStatus OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Status of the Volume"
+    ::= { volumeEntry 4 }
+
+volumeBrickNumber OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Bricks in a Volume"
+    ::= { volumeEntry 5 }
+
+volumeBrickTable OBJECT-TYPE
+    SYNTAX      SEQUENCE of VolumeBrickEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of Bricks in the Volume."
+    ::= { volumeEntry 6 }
+
+volumeBrickEntry OBJECT-TYPE
+    SYNTAX     VolumeBrickEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+             "An entry containing Bricks in a Volume."
+    INDEX      { volumeBrickIndex }
+    ::= { volumeBrickTable 1 }
+
+VolumeBrickEntry ::=
+    SEQUENCE {
+        volumeBrickIndex         Integer32,
+        volumeNodeName           DisplayString,
+        volumeBrickPath          DisplayString
+    }
+
+volumeBrickIndex OBJECT-TYPE
+    SYNTAX     NodeIndex
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+            "A unique value, greater than zero, for each Brick in the Volume."
+    ::= { volumeBrickEntry 1 }
+
+volumeNodeName OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Name of the Node for the Volume Brick."
+    ::= { volumeBrickEntry 2 }
+
+volumeBrickPath OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Path on the Node of the Brick in the Volume."
+    ::= { volumeBrickEntry 3 }
 
 END
