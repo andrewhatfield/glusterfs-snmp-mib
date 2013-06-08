@@ -13,7 +13,7 @@ IMPORTS
 
 
 glusterMIB MODULE-IDENTITY
-    LAST-UPDATED "201306070000Z"
+    LAST-UPDATED "201306080000Z"
     ORGANIZATION "Red Hat Inc."
     CONTACT-INFO
             "   Andrew Hatfield
@@ -27,7 +27,7 @@ glusterMIB MODULE-IDENTITY
             "The MIB module to describe Nodes, Bricks and Volumes
             in a GlusterFS Red Hat Storage Trusted Storage Pool"
 
-    REVISION      "201306070000Z"
+    REVISION      "201306080000Z"
     DESCRIPTION
             "Initial revision"
     ::= { mib-2 31 }
