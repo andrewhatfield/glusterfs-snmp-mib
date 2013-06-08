@@ -2,7 +2,7 @@ GLUSTER-MIB DEFINITIONS ::= BEGIN
 
 IMPORTS
     MODULE-IDENTITY, OBJECT-TYPE, Counter32, Gauge32, Counter64,
-    Integer32, TimeTicks, mib-2,
+    Integer32, TimeTicks, mib-2, enterprises
     NOTIFICATION-TYPE                        FROM SNMPv2-SMI
     TEXTUAL-CONVENTION, DisplayString,
     PhysAddress, TruthValue, RowStatus,
@@ -10,6 +10,7 @@ IMPORTS
     MODULE-COMPLIANCE, OBJECT-GROUP,
     NOTIFICATION-GROUP                       FROM SNMPv2-CONF
     snmpTraps                                FROM SNMPv2-MIB;
+
 
 glusterMIB MODULE-IDENTITY
     LAST-UPDATED "201306070000Z"
