@@ -185,7 +185,7 @@ BrickEntry ::=
         brickLV                  DisplayString,
         brickVG                  DisplayString,
         brickPV                  DisplayString,
-        brickStatus              DisplayString
+        brickStatus              Integer32
     }
 
 brickIndex OBJECT-TYPE
@@ -261,7 +261,7 @@ brickPV OBJECT-TYPE
     ::= { brickEntry 9 }
 
 brickStatus OBJECT-TYPE
-    SYNTAX      DisplayString (SIZE (0..255))
+    SYNTAX      Integer32
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
@@ -301,9 +301,8 @@ VolumeEntry ::=
         volumeIndex              VolumeIndex,
         volumeName               DisplayString,
         volumeType               DisplayString,
-        volumeStatus             DisplayString,
-        volumeBrickNumber        Integer32,
-        volumeBrickEntry         VolumeBrickEntry
+        volumeStatus             Integer32,
+        volumeBrickNumber        Integer32
     }
 
 volumeIndex OBJECT-TYPE
@@ -336,7 +335,7 @@ volumeType OBJECT-TYPE
     ::= { volumeEntry 3 }
 
 volumeStatus OBJECT-TYPE
-    SYNTAX      DisplayString (SIZE (0..255))
+    SYNTAX      Integer32
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
@@ -352,51 +351,60 @@ volumeBrickNumber OBJECT-TYPE
     ::= { volumeEntry 5 }
 
 volumeBrickTable OBJECT-TYPE
-    SYNTAX      SEQUENCE of VolumeBrickEntry
+    SYNTAX      SEQUENCE OF VolumeBrickEntry
     MAX-ACCESS  not-accessible
     STATUS      current
     DESCRIPTION
-            "A list of Bricks in the Volume."
+            "A list of Brick entries for this Volume.  The number of entries is
+            given by the value of volumeBrickNumber."
     ::= { volumeEntry 6 }
 
 volumeBrickEntry OBJECT-TYPE
-    SYNTAX     VolumeBrickEntry
-    MAX-ACCESS not-accessible
-    STATUS     current
+    SYNTAX      VolumeBrickEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
     DESCRIPTION
-             "An entry containing Bricks in a Volume."
-    INDEX      { volumeBrickIndex }
+            "An entry containing management information applicable to a
+            particular Volume."
+    INDEX   { volumeBrickIndex }
     ::= { volumeBrickTable 1 }
 
 VolumeBrickEntry ::=
     SEQUENCE {
-        volumeBrickIndex         Integer32,
-        volumeNodeName           DisplayString,
-        volumeBrickPath          DisplayString
+        volumeBrickIndex         VolumeBrickIndex,
+        volumeBrickPath          DisplayString,
+        volumeBrickStatus        Integer32
     }
 
 volumeBrickIndex OBJECT-TYPE
-    SYNTAX     NodeIndex
-    MAX-ACCESS read-only
-    STATUS     current
-    DESCRIPTION
-            "A unique value, greater than zero, for each Brick in the Volume."
-    ::= { volumeBrickEntry 1 }
-
-volumeNodeName OBJECT-TYPE
-    SYNTAX      DisplayString (SIZE (0..255))
+    SYNTAX      NodeIndex
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
-             "Name of the Node for the Volume Brick."
-    ::= { volumeBrickEntry 2 }
+            "A unique value, greater than zero, for each interface.  It
+            is recommended that values are assigned contiguously
+            starting from 1.  The value for each interface sub-layer
+            must remain constant at least from one re-initialization of
+            the entity's network management system to the next re-
+            initialization."
+    ::= { volumeBrickEntry 1 }
 
 volumeBrickPath OBJECT-TYPE
     SYNTAX      DisplayString (SIZE (0..255))
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
-             "Path on the Node of the Brick in the Volume."
+             "Path of the Volume's Brick"
+    ::= { volumeBrickEntry 2 }
+
+
+volumeBrickStatus OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Status of the Volume's Brick"
     ::= { volumeBrickEntry 3 }
+
 
 END
