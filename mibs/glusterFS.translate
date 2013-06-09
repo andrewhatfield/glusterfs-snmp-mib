@@ -1,0 +1,75 @@
++--glusterFS(11)
+   |
+   +-- -R-- Integer32 nodeNumber(1)
+   |        Range: 1..64
+   |
+   +--nodeTable(2)
+   |  |
+   |  +--nodeEntry(1)
+   |     |  Index: nodeIndex
+   |     |
+   |     +-- -R-- Integer32 nodeIndex(1)
+   |     |        Textual Convention: NodeIndex
+   |     |        Range: 1..64
+   |     +-- -R-- String    nodeVersion(2)
+   |     |        Textual Convention: DisplayString
+   |     |        Size: 0..255
+   |     +-- -R-- Integer32 brickNumber(3)
+   |     |
+   |     +--brickTable(4)
+   |        |
+   |        +--brickEntry(1)
+   |           |  Index: brickIndex
+   |           |
+   |           +-- -R-- Integer32 brickIndex(1)
+   |           +-- -R-- String    brickPath(2)
+   |           |        Textual Convention: DisplayString
+   |           |        Size: 0..255
+   |           +-- -R-- String    brickFs(3)
+   |           |        Textual Convention: DisplayString
+   |           |        Size: 0..255
+   |           +-- -R-- Integer32 brickSize(4)
+   |           +-- -R-- Integer32 brickUsed(5)
+   |           +-- -R-- Integer32 brickFree(6)
+   |           +-- -R-- String    brickLV(7)
+   |           |        Textual Convention: DisplayString
+   |           |        Size: 0..255
+   |           +-- -R-- String    brickVG(8)
+   |           |        Textual Convention: DisplayString
+   |           |        Size: 0..255
+   |           +-- -R-- String    brickPV(9)
+   |           |        Textual Convention: DisplayString
+   |           |        Size: 0..255
+   |           +-- -R-- Integer32 brickStatus(10)
+   |
+   +-- -R-- Integer32 volumeNumber(3)
+   |
+   +--volumeTable(4)
+      |
+      +--volumeEntry(1)
+         |  Index: volumeIndex
+         |
+         +-- -R-- Integer32 volumeIndex(1)
+         |        Textual Convention: NodeIndex
+         |        Range: 1..64
+         +-- -R-- String    volumeName(2)
+         |        Textual Convention: DisplayString
+         |        Size: 0..255
+         +-- -R-- String    volumeType(3)
+         |        Textual Convention: DisplayString
+         |        Size: 0..255
+         +-- -R-- Integer32 volumeStatus(4)
+         +-- -R-- Integer32 volumeBrickNumber(5)
+         |
+         +--volumeBrickTable(6)
+            |
+            +--volumeBrickEntry(1)
+               |  Index: volumeBrickIndex
+               |
+               +-- -R-- Integer32 volumeBrickIndex(1)
+               |        Textual Convention: NodeIndex
+               |        Range: 1..64
+               +-- -R-- String    volumeBrickPath(2)
+               |        Textual Convention: DisplayString
+               |        Size: 0..255
+               +-- -R-- Integer32 volumeBrickStatus(3)
