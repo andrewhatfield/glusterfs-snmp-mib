@@ -1,0 +1,410 @@
+GLUSTER-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, Counter32, Gauge32, Counter64,
+    Integer32, TimeTicks, mib-2, enterprises
+    NOTIFICATION-TYPE                        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION, DisplayString,
+    PhysAddress, TruthValue, RowStatus,
+    TimeStamp, AutonomousType, TestAndIncr   FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP,
+    NOTIFICATION-GROUP                       FROM SNMPv2-CONF
+    snmpTraps                                FROM SNMPv2-MIB;
+
+
+glusterMIB MODULE-IDENTITY
+    LAST-UPDATED "201306080000Z"
+    ORGANIZATION "Red Hat Inc."
+    CONTACT-INFO
+            "   Andrew Hatfield
+                Red Hat Asia Pacific
+                193 North Quay
+                Brisbane, QLD  4000
+                AU
+
+                ahatfiel@redhat.com"
+    DESCRIPTION
+            "The MIB module to describe Nodes, Bricks and Volumes
+            in a GlusterFS Red Hat Storage Trusted Storage Pool"
+
+    REVISION      "201306080000Z"
+    DESCRIPTION
+            "Initial revision"
+    ::= { mib-2 31 }
+
+-- glusterMIBObjects OBJECT IDENTIFIER ::= { glusterMIB 1 }
+
+glusterFS OBJECT IDENTIFIER ::= { enterprises 2312 11 }
+
+--
+-- Textual Conventions
+--
+
+-- OwnerString has the same semantics as used in RFC 1271
+
+OwnerString ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "255a"
+    STATUS       deprecated
+    DESCRIPTION
+            "This data type is used to model an administratively
+            assigned name of the owner of a resource.  This information
+            is taken from the NVT ASCII character set.  It is suggested
+            that this name contain one or more of the following: ASCII
+            form of the manager station's transport address, management
+            station name (e.g., domain name), network management
+            personnel's name, location, or phone number.  In some cases
+            the agent itself will be the owner of an entry.  In these
+            cases, this string shall be set to a string starting with
+            'agent'."
+    SYNTAX       OCTET STRING (SIZE(0..255))
+
+-- NodeIndex contains the semantics of nodeIndex and should be used
+-- for any objects defined in other MIB modules that need these semantics.
+
+NodeIndex ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+            "A unique value, greater than zero, for each Node or
+            in the Trusted Storage Pool"
+    SYNTAX       Integer32 (1..64)
+
+-- I think I want to remove this block --
+-- START --
+InterfaceIndexOrZero ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS       current
+    DESCRIPTION
+            "This textual convention is an extension of the
+            InterfaceIndex convention.  The latter defines a greater
+            than zero value used to identify an interface or interface
+            sub-layer in the managed system.  This extension permits the
+            additional value of zero.  the value zero is object-specific
+            and must therefore be defined as part of the description of
+            any object which uses this syntax.  Examples of the usage of
+            zero might include situations where interface was unknown,
+            or when none or all interfaces need to be referenced."
+    SYNTAX       Integer32 (0..2147483647)
+-- END --
+
+nodeNumber  OBJECT-TYPE
+    SYNTAX      Integer32 (1..64)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Nodes in the Trusted Storage Pool"
+    ::= { glusterFS 1 }
+
+-- The Nodes table contains information on the entity's Nodes
+
+nodeTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF NodeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of Node entries.  The number of entries is
+            given by the value of nodeNumber."
+    ::= { glusterFS 2 }
+
+nodeEntry OBJECT-TYPE
+    SYNTAX      NodeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry containing management information applicable to a
+            particular Node."
+    INDEX   { nodeIndex }
+    ::= { nodeTable 1 }
+
+NodeEntry ::=
+    SEQUENCE {
+        nodeIndex                NodeIndex,
+        nodeVersion              DisplayString,
+	brickNumber              Integer32,
+        brickEntry               BrickEntry
+    }
+
+nodeIndex OBJECT-TYPE
+--    SYNTAX      Integer32
+    SYNTAX      NodeIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each interface.  It
+            is recommended that values are assigned contiguously
+            starting from 1.  The value for each interface sub-layer
+            must remain constant at least from one re-initialization of
+            the entity's network management system to the next re-
+            initialization."
+    ::= { nodeEntry 1 }
+
+nodeVersion OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A textual string containing information about the
+            GlusterFS protocol version interface."
+    ::= { nodeEntry 2 }
+
+brickNumber OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Bricks on a Node"
+    ::= { nodeEntry 3 }
+
+brickTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF BrickEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of Brick entries.  The number of entries is
+            given by the value of brickNumber."
+    ::= { nodeEntry 4 }
+
+brickEntry OBJECT-TYPE
+    SYNTAX      BrickEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry containing management information applicable to a
+            particular Brick."
+    INDEX   { brickIndex }
+    ::= { brickTable 1 }
+
+BrickEntry ::=
+    SEQUENCE {
+        brickIndex               Integer32,
+        brickPath                DisplayString,
+        brickFs                  DisplayString,
+        brickSize                Integer32,
+        brickUsed                Integer32,
+        brickFree                Integre32,
+        brickLV                  DisplayString,
+        brickVG                  DisplayString,
+        brickPV                  DisplayString,
+        brickStatus              Integer32
+    }
+
+brickIndex OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Bricks on a Node"
+    ::= { brickEntry 1 }
+
+brickPath OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Path on the filesystem to the Brick"
+    ::= { brickEntry 2 }
+
+brickFs OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Type of filesystem of the Brick"
+    ::= { brickEntry 3 }
+
+brickSize OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Size (MB) of the Brick"
+    ::= { brickEntry 4 }
+
+brickUsed OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "MB used of the Brick"
+    ::= { brickEntry 5 }
+
+brickFree OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "MB free on the Brick"
+    ::= { brickEntry 6 }
+
+brickLV OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "LogicalVolume (LV) of the Brick"
+    ::= { brickEntry 7 }
+
+brickVG OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "VolumeGroup (VG) of the Brick"
+    ::= { brickEntry 8 }
+
+brickPV OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "PhysicalVolume (PV) of the Brick"
+    ::= { brickEntry 9 }
+
+brickStatus OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Status of the Brick - Health"
+    ::= { brickEntry 10 }
+------
+
+volumeNumber  OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Nodes in the Trusted Storage Pool"
+    ::= { glusterFS 3 }
+
+volumeTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF VolumeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of Volume entries.  The number of entries is
+            given by the value of volumeNumber."
+    ::= { glusterFS 4 }
+
+volumeEntry OBJECT-TYPE
+    SYNTAX      VolumeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry containing management information applicable to a
+            particular Volume."
+    INDEX   { volumeIndex }
+    ::= { volumeTable 1 }
+
+VolumeEntry ::=
+    SEQUENCE {
+        volumeIndex              VolumeIndex,
+        volumeName               DisplayString,
+        volumeType               DisplayString,
+        volumeStatus             Integer32,
+        volumeBrickNumber        Integer32
+    }
+
+volumeIndex OBJECT-TYPE
+    SYNTAX      NodeIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each interface.  It
+            is recommended that values are assigned contiguously
+            starting from 1.  The value for each interface sub-layer
+            must remain constant at least from one re-initialization of
+            the entity's network management system to the next re-
+            initialization."
+    ::= { volumeEntry 1 }
+
+volumeName OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Name of the Volume"
+    ::= { volumeEntry 2 }
+
+volumeType OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Type of Volume"
+    ::= { volumeEntry 3 }
+
+volumeStatus OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Status of the Volume"
+    ::= { volumeEntry 4 }
+
+volumeBrickNumber OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The number of Bricks in a Volume"
+    ::= { volumeEntry 5 }
+
+volumeBrickTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF VolumeBrickEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "A list of Brick entries for this Volume.  The number of entries is
+            given by the value of volumeBrickNumber."
+    ::= { volumeEntry 6 }
+
+volumeBrickEntry OBJECT-TYPE
+    SYNTAX      VolumeBrickEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            "An entry containing management information applicable to a
+            particular Volume."
+    INDEX   { volumeBrickIndex }
+    ::= { volumeBrickTable 1 }
+
+VolumeBrickEntry ::=
+    SEQUENCE {
+        volumeBrickIndex         VolumeBrickIndex,
+        volumeBrickPath          DisplayString,
+        volumeBrickStatus        Integer32
+    }
+
+volumeBrickIndex OBJECT-TYPE
+    SYNTAX      NodeIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "A unique value, greater than zero, for each interface.  It
+            is recommended that values are assigned contiguously
+            starting from 1.  The value for each interface sub-layer
+            must remain constant at least from one re-initialization of
+            the entity's network management system to the next re-
+            initialization."
+    ::= { volumeBrickEntry 1 }
+
+volumeBrickPath OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Path of the Volume's Brick"
+    ::= { volumeBrickEntry 2 }
+
+
+volumeBrickStatus OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+             "Status of the Volume's Brick"
+    ::= { volumeBrickEntry 3 }
+
+
+END
